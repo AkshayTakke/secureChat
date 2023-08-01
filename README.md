@@ -61,6 +61,10 @@ Sensitive information, including private keys, should not be stored in plaintext
   
 ![SecureChatSignUp](https://github.com/AkshayTakke/secureChat/assets/54357275/a563946e-fd75-45be-b1d0-796c9ec5715b)
 
+- If User Already Exists Showing Error Pop Up
+
+![UsernameAlreadyExists](https://github.com/AkshayTakke/secureChat/assets/54357275/e494a7e5-f56e-4193-8d39-0566d5fb75a3)
+
 - Login
 
 ![LoginSuccessFul](https://github.com/AkshayTakke/secureChat/assets/54357275/0ccfb93f-0b28-45c3-bc22-9466a234e2b1)
@@ -80,6 +84,11 @@ Sensitive information, including private keys, should not be stored in plaintext
 - Message Sent Pop Up
 
 ![MessageSentSucessPopUp](https://github.com/AkshayTakke/secureChat/assets/54357275/c10cd710-2c90-469b-8883-23ffbe70f4e0)
+
+- Complete App UI
+
+![FullApp](https://github.com/AkshayTakke/secureChat/assets/54357275/94a18dcb-1fb5-429e-9cc0-dbe7d9be34be)
+
 
 
 <b>VULNERABILITIES</b>
