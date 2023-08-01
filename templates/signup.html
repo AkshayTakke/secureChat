@@ -71,21 +71,21 @@
     </style>
 </head>
 <body>
-    <form method="POST" action="{{ url_for('signup') }}">
-        <h1>Signup</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-        <input type="submit" value="Signup">
-        <a href="{{ url_for('login') }}">Already have an account? Login</a>
-    </form>
+<form method="POST" action="{{ url_for('signup') }}">
+    <h1>Signup</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+    <input type="submit" value="Signup">
+    <a href="{{ url_for('login') }}">Already have an account? Login</a>
+</form>
 </body>
 </html>

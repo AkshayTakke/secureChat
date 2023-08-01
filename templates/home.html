@@ -57,33 +57,35 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Welcome</h1>
-        </header>
+<div class="container">
+    <header>
+        <h1>Welcome</h1>
+    </header>
 
-        <main>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-            <p>Hello, you are logged in!</p>
-            <br>
-            
-            <a href="{{ url_for('logout') }}">Logout</a>
-            <br>
-            <br>
-            <form action="/chat" method="get">
-                <button class="chat-button" >Start Chatting</button>
-            </form>
-        </main>
+        <p>Hello, you are logged in!</p>
+        <br>
 
-    </div>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        <br>
+        <br>
+        <button class="chat-button" onclick="redirect()">Start Chatting</button>
+    </main>
+    <script>
+        function redirect() {
+            window.location.href = window.location.href + 'chat';
+        }
+    </script>
+</div>
 </body>
 </html>

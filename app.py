@@ -1,23 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_session import Session
-from models import db, User, ChatMessage
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from datetime import datetime
+
 import rsa
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from flask_session import Session
-from models import db, User
-from werkzeug.security import generate_password_hash, check_password_hash
-import os
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from base64 import b64encode, b64decode
-from datetime import datetime
-from cryptography.hazmat.primitives.asymmetric import padding, utils
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask_session import Session
+from models import ChatMessage
+from models import db, User
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -28,9 +23,10 @@ app.config['SESSION_PERMANENT'] = False
 db.init_app(app)
 Session(app)
 
-# @app.before_first_request
+
 def create_tables():
     db.create_all()
+
 
 @app.route('/')
 def home():
@@ -58,7 +54,8 @@ def signup():
         public_key_str = public_key.decode()
 
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password, public_key=public_key_str, private_key=private_key_str)
+        new_user = User(username=username, password=hashed_password, public_key=public_key_str,
+                        private_key=private_key_str)
         db.session.add(new_user)
         db.session.commit()
 
@@ -84,6 +81,7 @@ def login():
             flash('Invalid username or password', 'error')
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -128,20 +126,24 @@ def view_messages(recipient_id):
         flash('You cannot chat with yourself', 'error')
         return redirect(url_for('chat'))
 
-    chat_history = ChatMessage.query.filter(
-        (ChatMessage.sender_id == recipient_user.id) &
-        (ChatMessage.recipient_id == current_user.id )
+    received_messages = ChatMessage.query.filter(
+        (ChatMessage.sender_id == recipient_id) &
+        (ChatMessage.recipient_id == current_user.id)
     ).order_by(ChatMessage.timestamp).all()
 
-    print(chat_history)
+    received_messages = ChatMessage.query.filter(
+        (ChatMessage.sender_id == recipient_id) &
+        (ChatMessage.recipient_id == current_user.id)
+    ).order_by(ChatMessage.timestamp).all()
+
     recipient_private_key = serialization.load_pem_private_key(
         current_user.private_key.encode(),
         password=None,
         backend=default_backend()
     )
 
-    decrypted_messages = []
-    for message in chat_history:
+    decrypted_received_messages = []
+    for message in received_messages:
         try:
             decrypted_message = recipient_private_key.decrypt(
                 message.message,
@@ -151,11 +153,40 @@ def view_messages(recipient_id):
                     label=None
                 )
             ).decode()
-            decrypted_messages.append(decrypted_message)
+            decrypted_received_messages.append(decrypted_message)
         except Exception:
-            decrypted_messages.append("[Decryption Error]")
-    
-    return render_template('view_messages.html', recipient=recipient_user, messages=decrypted_messages)
+            decrypted_received_messages.append("[Decryption Error]")
+
+    sent_messages = ChatMessage.query.filter(
+        (ChatMessage.sender_id == current_user.id) &
+        (ChatMessage.recipient_id == recipient_id)
+    ).order_by(ChatMessage.timestamp).all()
+
+    recipient_private_key = serialization.load_pem_private_key(
+        recipient_user.private_key.encode(),
+        password=None,
+        backend=default_backend()
+    )
+
+    decrypted_sent_messages = []
+    for message in sent_messages:
+        try:
+            decrypted_message = recipient_private_key.decrypt(
+                message.message,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            ).decode()
+            decrypted_sent_messages.append(decrypted_message)
+        except Exception:
+            decrypted_sent_messages.append("[Decryption Error]")
+
+    return jsonify({
+        'received_messages': decrypted_received_messages,
+        'sent_messages': decrypted_sent_messages
+    })
 
 
 @app.route('/chat', methods=['GET', 'POST'])
@@ -189,7 +220,7 @@ def chat():
                     label=None
                 )
             )
-        except utils.UnsupportedAlgorithm as e:
+        except Exception as e:
             flash('Encryption failed. Please try again later.', 'error')
             return jsonify({'status': 'failed'})
 
@@ -204,9 +235,9 @@ def chat():
         db.session.commit()
 
         return jsonify({'status': 'success'})
-
+    current_user = User.query.get(session['user_id'])
     users = User.query.filter(User.id != session['user_id']).all()
-    return render_template('chat.html', users=users)
+    return render_template('chat.html', current_user=current_user, users=users)
 
 
 if __name__ == "__main__":

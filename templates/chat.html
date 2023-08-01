@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Chat</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -43,7 +44,8 @@
             margin-bottom: 5px;
         }
 
-        select, textarea {
+        select,
+        textarea {
             width: 92%;
             padding: 10px;
             margin-bottom: 10px;
@@ -78,73 +80,165 @@
             word-break: break-all;
         }
 
-        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3498db;
+            padding: 10px;
+            color: #fff;
+        }
+
+        .navbar-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .navbar-logout {
+            margin-left: auto;
+        }
+
+        .navbar a:hover {
+            background-color: #2980b9;
+        }
     </style>
+
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <h1>Chat</h1>
-        </header>
-
-        <main>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <div>
-                <label for="recipient">Select recipient:</label>
-                <select id="recipient" name="recipient">
-                    {% for user in users %}
-                        <option value="{{ user.id }}">{{ user.username }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="message">Message:</label>
-                <textarea id="message" name="message" rows="5"></textarea>
-            </div>
-            <div>
-                <button id="send">Send</button>
-            </div>
-
-            <div id="messageHistory">
-            </div>
-        </main>
+<div class="navbar">
+    <h1 class="navbar-logo">SecureChat</h1>
+    <div class="navbar-logout">
+        <a href="#">Hello👋 {{ current_user.username }}</a>
+        <a href="/">Home</a>
+        <a href="/logout">Logout</a>
     </div>
+</div>
 
-    <script>
-        $(document).ready(function() {
-            $('#send').click(function() {
-                var recipient = $('#recipient').val();
-                var message = $('#message').val();
+<h1>Chat</h1>
+<div id="notification"
+     style="display: none; padding: 10px; background-color: #2ecc71; color: #fff; text-align: center; margin-top: 10px;">
+</div>
 
-                $.post('/chat', {recipient: recipient, message: message}, function(data) {
-                    if (data.status === 'success') {
-                        alert('Message sent successfully');
-                        $('#message').val('');
-                        loadMessageHistory(recipient); 
-                    }
-                });
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div>
+    <label for="recipient">Select recipient:</label>
+    <select id="recipient" name="recipient">
+        <option value="">Select User</option>
+        {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div>
+    <label for="message">Message:</label>
+    <textarea id="message" name="message"></textarea>
+</div>
+<div>
+    <button id="send">Send</button>
+</div>
+
+<div>
+    <h2>Received Messages</h2>
+    <ul id="receivedMessageList">
+    </ul>
+</div>
+
+<div>
+    <h2>Sent Messages</h2>
+    <ul id="sentMessageList">
+    </ul>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#send').click(function () {
+            var recipient = $('#recipient').val();
+            var message = $('#message').val();
+
+            $.post('/chat', {recipient: recipient, message: message}, function (data) {
+                if (data.status === 'success') {
+                    showNotification('Message sent successfully');
+
+                    $('#message').val('');
+                    loadMessageHistory(recipient);
+                }
             });
-
-            $('#recipient').change(function() {
-                var recipient = $(this).val();
-                loadMessageHistory(recipient);
-            });
-
-            function loadMessageHistory(recipient) {
-                $.get('/chat/' + recipient, function(data) {
-                    $('#messageHistory').html(data); 
-                });
-            }
         });
-    </script>
+
+        function showNotification(message) {
+            $('#notification').text(message).slideDown(400).delay(2000).slideUp(400);
+        }
+
+        var messageHistoryInterval;
+
+        $('#recipient').change(function () {
+            var recipient = $(this).val();
+
+            clearInterval(messageHistoryInterval);
+
+            loadMessageHistory(recipient);
+            startRefreshingMessageHistory(recipient);
+        });
+
+        function startRefreshingMessageHistory(recipient) {
+            clearInterval(messageHistoryInterval);
+            messageHistoryInterval = setInterval(function () {
+                loadMessageHistory(recipient);
+            }, 2000);
+        }
+
+        function loadMessageHistory(recipient) {
+            $.get('/chat/' + recipient, function (data) {
+                $('#receivedMessageList').empty();
+                $('#sentMessageList').empty();
+
+                data.received_messages.forEach(function (message) {
+                    $('#receivedMessageList').append('<li>' + message + '</li>');
+                });
+
+                data.sent_messages.forEach(function (message) {
+                    $('#sentMessageList').append('<li>' + message + '</li>');
+                });
+            });
+        }
+
+
+        function refreshMessageHistory(recipient) {
+            loadMessageHistory(recipient);
+            setTimeout(function () {
+                refreshMessageHistory(recipient);
+            }, 3000);
+        }
+
+        var initialRecipient = $('#recipient').val();
+        loadMessageHistory(initialRecipient);
+        startRefreshingMessageHistory(initialRecipient);
+    });
+
+</script>
 </body>
+
 </html>
