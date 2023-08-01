@@ -55,6 +55,12 @@ Sensitive information, including private keys, should not be stored in plaintext
 -	RSA Encryption
 -	Hashing
 
+<b>How to Install and Run the Project</b>
+
+- (optional) unzip folder or clone the git repository
+- pip3 install -r requirements.txt
+- python3 app.py
+
 <b>WORKFLOW</b>
 
 - Sign Up
