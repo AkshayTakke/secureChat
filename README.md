@@ -119,6 +119,23 @@ Employees or individuals with access to the application's backend may abuse thei
 
 <b>CONCLUSION</b>
 
-The communication application based on Flask demonstrates secure messaging with RSA encryption, user authentication, and database integration. It provides a foundation for developing sophisticated chat features while demonstrating Flask's simplicity and scalability potential. Implements RSA encryption for secure and confidential communications between users. User Authentication: Allows users to register with unique credentials and hashes passwords securely for authentication. User-Friendly Interface: Offers HTML templates for an intuitive and user-friendly interface. Database Integration: User data and encrypted chat communications are stored in a SQLite database. Session Management: Manages user sessions for seamless access and logout. Error management: Contains error management mechanisms that provide users with meaningful feedback. Flask Framework: Based on Flask, a flexible and lightweight Python web framework. Cross-Platform Accessibility: Accessible from multiple internet-connected devices. Extensibility: The modular structure makes it simple to add new features. Valuable educational resource for web development concepts such as encryption, database integration, and session management.
+The communication application based on Flask demonstrates secure messaging with RSA encryption, user authentication, and database integration. It provides a foundation for developing sophisticated chat features while demonstrating Flask's simplicity and scalability potential. Implements RSA encryption for secure and confidential communications between users. 
+
+<b>User Authentication:</b> 
+Allows users to register with unique credentials and hashes passwords securely for authentication. 
+
+<b>User-Friendly Interface:</b> 
+Offers HTML templates for an intuitive and user-friendly interface. Database Integration: User data and encrypted chat communications are stored in a SQLite database. 
+
+<b>Session Management:</b>
+Manages user sessions for seamless access and logout. Error management: Contains error management mechanisms that provide users with meaningful feedback. 
+
+<b>Flask Framework:</b> 
+Based on Flask, a flexible and lightweight Python web framework. 
+
+<b>Cross-Platform Accessibility:</b>
+Accessible from multiple internet-connected devices. 
+
+<b>Extensibility:</b> The modular structure makes it simple to add new features. Valuable educational resource for web development concepts such as encryption, database integration, and session management.
 
 
