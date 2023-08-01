@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        select, textarea {
+            width: 92%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        #send {
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #send:hover {
+            background-color: #2980b9;
+        }
+
+        #messageHistory {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            overflow-y: auto;
+            max-height: 200px;
+            word-break: break-all;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chat</h1>
+        </header>
+
+        <main>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div>
+                <label for="recipient">Select recipient:</label>
+                <select id="recipient" name="recipient">
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="5"></textarea>
+            </div>
+            <div>
+                <button id="send">Send</button>
+            </div>
+
+            <div id="messageHistory">
+            </div>
+        </main>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#send').click(function() {
+                var recipient = $('#recipient').val();
+                var message = $('#message').val();
+
+                $.post('/chat', {recipient: recipient, message: message}, function(data) {
+                    if (data.status === 'success') {
+                        alert('Message sent successfully');
+                        $('#message').val('');
+                        loadMessageHistory(recipient); 
+                    }
+                });
+            });
+
+            $('#recipient').change(function() {
+                var recipient = $(this).val();
+                loadMessageHistory(recipient);
+            });
+
+            function loadMessageHistory(recipient) {
+                $.get('/chat/' + recipient, function(data) {
+                    $('#messageHistory').html(data); 
+                });
+            }
+        });
+    </script>
+</body>
+</html>

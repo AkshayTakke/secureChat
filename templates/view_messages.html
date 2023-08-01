@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Messages</title>
+</head>
+<body>
+    <h1>Chat with {{ recipient.username }}</h1>
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('chat') }}">Back to chat</a>
+</body>
+</html>
